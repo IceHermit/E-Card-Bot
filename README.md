@@ -22,9 +22,9 @@ The game is heavily favoured to the Emperor, so the Slave's winnings are amplifi
 
 ## Usage
 
-- The `/register` command needs to be used for first time players. This creates an account of the player and gives them a starting bonus of 100 Debaloons, which they can bet in games of E-Card.
+- The `/register` command needs to be used for first time players. This creates an account of the player and gives them a starting bonus of 100 Debloons, which they can bet in games of E-Card.
 - Any registered player can call the `/play` command and set up a match against any other registered player. The two must agree to the side they are playing and the wagers.
-- If any player goes out of Debaloons and goes bankrupt, they can use `/work` to get more money the good old (but slow) way.
+- If any player goes out of Debloons and goes bankrupt, they can use `/work` to get more Debloons the good old (but slow) way.
 - The balance of any registered player can be seen using the `/balance` command.
 
 ## Credits
