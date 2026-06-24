@@ -14,7 +14,7 @@ This is a discord bot based on the two-player turn-based (niche) card game <b>E-
 - Every player has 4 <b>Citizen</b> cards, and 1 card of their respective role (<b>Slave/Emperor</b>).
 - There are 5 rounds, and each player chooses one card and exhausts it. There are 4 possibilities in each round: <br>
       i) Both players choose <b>Citizen.</b> The game proceeds to the next round. <br>
-     ii) A <b>Slave</b> and an <b>Emperor</b> are played. The <b>Slave</b> kills the <b>Emperor</b> and the game ends.<br>
+     ii) A <b>Slave</b> and an <b>Emperor</b> are played. The <b>Slave</b> kills the <b>Emperor</b> and <b>Slave</b> wins.<br>
     iii) A <b>Slave</b> and a <b>Citizen</b> are played. The <b>Slave</b> can not do anything against the <b>Citizen,</b> but the <b>Slave</b> card is exhausted. <b>Emperor</b> wins. <br>
      iv) An <b>Emperor</b> and a <b>Citizen</b> are played. The <b>Citizen</b> can not do anything against the <b>Emperor,</b> but now the <b>Slave</b> can never kill <b>Emperor</b>. <b>Emperor</b> wins. <br> <br>
 
