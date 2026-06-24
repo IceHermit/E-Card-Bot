@@ -1,0 +1,57 @@
+rules: |
+  ## 🃏 E-Card Rules
+  
+  * **Each side gets 5 cards**, out of which 4 are Citizen 🟦, and 1 is either Slave 🟥 or Emperor 🟩.
+  * **Both sides** then have to choose 1 card and play it against the other side every turn.
+  
+  * **Win Conditions:**
+    * If both sides choose Citizen 🟦, it's a tie.
+    * Emperor 🟩 beats Citizen 🟦.
+    * Citizen 🟦 beats Slave 🟥.
+    * Slave 🟥 beats Emperor 🟩.
+  
+  * If neither side picks slave or emperor until turn 5, the game ends and the slave side automatically wins.
+  * Minimum bet is 100 debloons
+
+theme_song: 
+  japanese: |
+    '''月が空にはりついてら 銀紙の星が揺れてら
+    誰もがポケットの中に 孤独を隠し持っている
+    あまりにも突然に 昨日は砕けてゆく
+    それならば今ここで 僕等何かをはじめよう
+
+    生きてることが大好きで 意味もなく興奮してる
+    一度に全てを望んで マッハ50で駆け抜ける
+    くだらない世の中だ ションベンかけてやろう
+    打ちのめされる前に 僕が打ちのめしてやろう
+
+    未来は僕等の手の中！！
+
+    誰かのルールはいらない 誰かのモラルはいらない
+    学校もジュクもいらない 真実を握りしめたい
+
+    僕等は泣くために 生まれたわけじゃないよ
+    僕等は負けるために 生まれてきたわけじゃないよ
+
+    '''
+  romanji: |
+    '''tsuki ga sora ni haritsuitera  gingami no hoshi ga yuretera
+    dare mo ga poketto no naka ni  kodoko o kakushi-motteiru
+    amari ni mo totsuzen ni   kinou wa kudakete-yuku
+    sore naraba ima koko de  bokura nanika o hajimeyou
+
+    ikiteiru koto ga daisuki de   imi mo naku koufun shiteru
+    ichido ni subete o nozonde  mahha gojuu de kake-nukeru
+    kudaranai yo no naka da  shonben kakte-yarou
+    uchi-nomesareru mae ni  boku ga uchi-nomeshite-yarou
+
+    MIRAI WA BOKURA NO TE NO NAKA!!
+
+    dareka no ruuru wa iranai  dareka no moraru wa iranai
+    gakkou mo juku mo iranai  shinjitsu o nigirishimetai
+
+    bokura wa naku tame ni  umareta wake janai yo
+    bokura wa makeru tame ni  umarete kita wake janai yo 
+    '''
+mod_ids:
+  - 67
