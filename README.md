@@ -4,6 +4,10 @@
 
 This is a discord bot based on the two-player turn-based (niche) card game <b>E-Card</b> from the anime <b>Kaiji: Ultimate Survivor</b>
 
+<p align="center">
+<img width="558" height="686" alt="image" src="https://github.com/user-attachments/assets/d45b4ae0-d71a-440d-b768-0755667249da" />
+</p>
+
 ## Rules of E-Card
 
 - Two players play the game, one is the <b>Emperor</b> and the other is the <b>Slave.</b>
@@ -14,7 +18,7 @@ This is a discord bot based on the two-player turn-based (niche) card game <b>E-
     iii) A <b>Slave</b> and a <b>Citizen</b> are played. The <b>Slave</b> can not do anything against the <b>Citizen,</b> but the <b>Slave</b> card is exhausted. <b>Emperor</b> wins. <br>
      iv) An <b>Emperor</b> and a <b>Citizen</b> are played. The <b>Citizen</b> can not do anything against the <b>Emperor,</b> but now the <b>Slave</b> can never kill <b>Emperor</b>. <b>Emperor</b> wins. <br> <br>
 
-- The game is heavily favoured to the Emperor, so the Slave's winnings are amplified.
+The game is heavily favoured to the Emperor, so the Slave's winnings are amplified.
 
 ## Usage
 
