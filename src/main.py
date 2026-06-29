@@ -1,112 +1,118 @@
+# ============================== IMPORT =============================
 import os
 import discord
 from discord.ext import commands
 from keep_alive import keep_running
-from tinydb import TinyDB, Query
-import random
+import sqlite3 as sql
 from utils import views
 import yaml
 from asyncio import sleep as async_sleep
 from dotenv import load_dotenv
-load_dotenv()
 
+
+# =============================== INIT ==============================
 with open("utils/strings.yaml", "r", encoding="utf-8") as f:
-    bot_messages = yaml.safe_load(f)
+    STRINGS = yaml.safe_load(f)
+mod_ids = STRINGS.get("mod_ids")
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!!", intents=intents)
 
-db = TinyDB("people_in_debt.json")
-debtors = Query()
+SQL_CONNECTION = sql.connect("people_in_debt.db", autocommit = True)
+SQL = SQL_CONNECTION.cursor()
 
-mod_ids = bot_messages.get("mod_ids")
+SQL.execute("""CREATE TABLE IF NOT EXISTS users 
+    (id INT PRIMARY KEY,
+    money INT,
+    can_work BOOLEAN);""")
 
 
-@bot.tree.command(name="nostalgia", description="Just nostalgia...")
+# =============================== UTIL ==============================
+def getPlayer(id):
+    SQL.execute(f"SELECT * FROM users WHERE id = {id}")
+    results = SQL.fetchall()
+    if not len(results):
+        return None
+    return results[0]
+
+
+def getTwoPlayers(player1, player2):
+    p1 = getPlayer(player1.id)
+    p2 = getPlayer(player2.id)
+    if p1 is None or p2 is None:
+        return False, False
+    return p1, p2
+
+
+# ========================== BOT COMMANDS ==========================
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user}")
+
+
+@bot.tree.command(name="nostalgia", description= STRINGS["descriptions"]["nostalgia"])
 async def nostalgia(interaction: discord.Interaction, romanji: bool = False):     
-    if romanji:
-        await interaction.response.send_message(bot_messages.get("theme_song", {}).get("romanji"))
-        return
-    await interaction.response.send_message(bot_messages.get("theme_song", {}).get("japanese"))
+    await interaction.response.send_message(STRINGS["theme_song"]["romanji" if romanji else "japanese"])
 
 
-@bot.tree.command(name="register", description="Sign your soul away today!")
+@bot.tree.command(name="register", description=STRINGS["descriptions"]["register"])
 async def register(interaction: discord.Interaction, user: discord.User = None):
     if user is None:
         user = interaction.user
     
-    if db.search(debtors.id == user.id):
-        await interaction.response.send_message("User has already been had by the greedy creators of this bot, sorry lol")
+    if getPlayer(user.id) is not None:
+        await interaction.response.send_message(STRINGS["errors"]["reregister"])
         return
         
-    db.insert({"id": user.id, "money": 1000, "canWork": True})
-    
-    await interaction.response.send_message(
-        f"`Successfully registered:` {user.mention}! Thank you for signing your soul away!"
-    )
-
-@bot.event
-async def on_ready():
-    print(f"logged in as {bot.user}")
+    SQL.execute(f"INSERT INTO users VALUES ({user.id}, {1000}, {True})")
+    await interaction.response.send_message(f"`Successfully registered:` {user.mention}! Thank you for signing your soul away!")
 
 
-@bot.tree.command(name="give", description="Give or take money from someone's account (Can only be used by mods)")
+@bot.tree.command(name="give", description=STRINGS["descriptions"]["give"])
 async def give(interaction: discord.Interaction, user: discord.User, amount: int):
-
     if interaction.user.id not in mod_ids:
-        await interaction.response.send_message("Command can only be used by mods")
+        await interaction.response.send_message(STRINGS["errors"]["mod"])
         return
     
-    results = db.search(debtors.id == user.id)
-    if not results:
-        await interaction.response.send_message("User is not registered")
+    target = getPlayer(user.id)
+    if target is None:
+        await interaction.response.send_message(STRINGS["errors"]["notregistered"])
         return
     
-    target = results[0]
     
-    new_balance = int(target["money"]) + int(amount)
-    db.update({"money": new_balance}, debtors.id == target["id"])
+    new_balance = int(target[1]) + int(amount)
+    SQL.execute(f"UPDATE users SET money = {new_balance} WHERE id = {target[0]}")
 
     await interaction.response.send_message(
         f"Succesfully updated the account balance of {user.mention}\n" +
         f"New account balance = ${new_balance}")
 
-def get_players(player1, player2):
-    response1 = db.search(debtors.id == player1.id)
-    if not response1:
-        return False, False
-    response2 = db.search(debtors.id == player2.id)
-    if not response2:
-        return False, False
-    return response1[0], response2[0]
 
-
-@bot.tree.command(name="play", description="The epic showdown.")
+@bot.tree.command(name="play", description=STRINGS["descriptions"]["play"])
 async def play(interaction: discord.Interaction, slave: discord.User, slave_bet: int, emperor: discord.User, emp_bet: int):
-    if interaction.user == bot.user:  # you don't want to respond to urself
+    if interaction.user == bot.user:
         return
     if slave == emperor:
-        await interaction.response.send_message("You can't play against yourself, thats a rigged gamble.")
+        await interaction.response.send_message(STRINGS["errors"]["selfplay"])
         return
     try:
         slave_bet = int(slave_bet)
         emp_bet = int(emp_bet)
     except ValueError:
-        await interaction.response.send_message("Your bet is not a number.")
+        await interaction.response.send_message(STRINGS["errors"]["nanbet"])
         return
 
     if slave_bet < 100 or emp_bet < 100:
-        await interaction.response.send_message("Your bet must be greater than or equal to 100 debloons, type /rules to know more")
+        await interaction.response.send_message(STRINGS["errors"]["smallbet"])
         return
 
-    userS, userE = get_players(slave, emperor)
+    userS, userE = getTwoPlayers(slave, emperor)
     if not userS or not userE:
-        await interaction.response.send_message("Either one of the users in not registered yet, please run /register to register the user.")
+        await interaction.response.send_message(STRINGS["errors"]["notregistered"])
         return
-    if userS["money"] < slave_bet or userE["money"] < emp_bet:
-        await interaction.response.send_message(
-            "Bruh you can't bet more than you own, what you want more debt???")
+    if userS[1] < slave_bet or userE[1] < emp_bet:
+        await interaction.response.send_message(STRINGS["errors"]["highbet"])
         return
 
     betconf = views.BetConfirmationView(slave, emperor)
@@ -116,8 +122,7 @@ async def play(interaction: discord.Interaction, slave: discord.User, slave_bet:
     confmsg = await interaction.original_response()
     timeout = await betconf.wait()
     if timeout or (not betconf.confirm1) or (not betconf.confirm2):
-        newmsg = await interaction.followup.send(
-            "One or both players didn't confirm, please make a new game")
+        newmsg = await interaction.followup.send(STRINGS["errors"]["noconfirmation"])
         await async_sleep(1)
         await confmsg.delete()
         await newmsg.delete()
@@ -141,22 +146,21 @@ async def play(interaction: discord.Interaction, slave: discord.User, slave_bet:
             await turne.edit(content=f"`Turn #{rounds}`")
         A, B = await turn(msg, slave, emperor, view, viewB)
 
-        if A and not B:  # A chose citizen, B choses emp
+        if A and not B: 
             outcome = f"{emperor.name} WON and got {emp_bet + slave_bet} coins!"
             did_slave_win = False
             break
-        elif not A and not B:  # Both sides play key cards
+        elif not A and not B:  
             outcome = f"{slave.name} WON and got {(slave_bet*5) + emp_bet} coins!"
             did_slave_win = True
             break
-        elif not A and B:  # A chose slave, B chose citizen
+        elif not A and B:  
             outcome = f"{emperor.name} WON and got {emp_bet + slave_bet} coins!"
             did_slave_win = False
             break
         else:
             await msg.edit(content="`both sides chose Citizen 🟦`")
             await async_sleep(1)
-        # if all these conditions are false, then both chose citizen
         rounds += 1
 
     if rounds >= 5:
@@ -166,8 +170,8 @@ async def play(interaction: discord.Interaction, slave: discord.User, slave_bet:
     choiceA = "Citizen 🟦" if A else "Slave 🟥"
     choiceB = "Citizen 🟦" if B else "Emperor 🟩"
 
-    slave_bal_new = userS['money']
-    emp_bal_new = userE['money']
+    slave_bal_new = userS[1]
+    emp_bal_new = userE[1]
 
     if did_slave_win:
         money_diff = (slave_bet * 5) + emp_bet
@@ -178,15 +182,13 @@ async def play(interaction: discord.Interaction, slave: discord.User, slave_bet:
         emp_bal_new += money_diff
         slave_bal_new -= slave_bet
 
-    db.update({"money": emp_bal_new}, debtors.id == userE["id"])
-    db.update({"money": slave_bal_new}, debtors.id == userS["id"])
-
-    #final message
+    SQL.execute(f"UPDATE users SET money = {emp_bal_new} WHERE id = {userE[0]}")
+    SQL.execute(f"UPDATE users SET money = {slave_bal_new} WHERE id = {userS[0]}")
+    
     await msg.delete()
     await turne.delete()
     await interaction.followup.send(
-        f"```{slave.name} chose {choiceA}\n{emperor.name} chose {choiceB}\n{outcome}```{slave.mention} {emperor.mention}"
-    )
+        f"```{slave.name} chose {choiceA}\n{emperor.name} chose {choiceB}\n{outcome}```{slave.mention} {emperor.mention}")
 
 
 async def turn(msg, userOne, userTwo, view, viewB):
@@ -203,59 +205,53 @@ async def turn(msg, userOne, userTwo, view, viewB):
     return view.choseCivilian, viewB.choseCivilian
 
 
-#run the bot
-
-
-@bot.tree.command(name="rules", description="check out the rules!")
+@bot.tree.command(name="rules", description=STRINGS["descriptions"]["rules"])
 async def rules(interaction):
-    await interaction.response.send_message(bot_messages.get("rules"))
+    await interaction.response.send_message(STRINGS["rules"])
 
 
-@bot.tree.command(name="balance", description="Check your balance (we all know you broke)")
+@bot.tree.command(name="balance", description=STRINGS["descriptions"]["balance"])
 async def balance(interaction: discord.Interaction, user: discord.User = None):
     if user is None:
         user = interaction.user
 
-    res = db.search(debtors.id == user.id)
-    if not res:
-        await interaction.response.send_message(
-            f"{user.name} has never played an E-card game before, run /register to register")
-    else:
-        money = res[0]['money']
-        money = "${}".format(money) if money >= 0 else "-${}".format(abs(money)) 
-        if user == interaction.user:
-            await interaction.response.send_message(f"`Your current Balance is: {money}`")
-        else:
-            await interaction.response.send_message(f"`{user.name}'s current Balance is: {money}`")
-
-
-
-@bot.tree.command(name="work", description="Work hard and get some debloons to gamble away")
-async def work(interaction):
-    resp = db.search(debtors.id == interaction.user.id)
-    if not resp:
-        await interaction.response.send_message(
-            "This user has not played a game yet, run /register to register")
+    res = getPlayer(user.id)
+    if res is None:
+        await interaction.response.send_message(STRINGS["errors"]["notregistered"])
         return
 
-    resp = resp[0]
-    if resp["canWork"]:
-        db.update({"canWork": False}, debtors.id == interaction.user.id)
-        game = views.WorkView(interaction)
-        await game.initiate_game()
-        winnings = resp["money"] + game.reward
-        db.update({"money": winnings}, debtors.id == interaction.user.id)
-        await async_sleep(60)
-        db.update({"canWork": True}, debtors.id == interaction.user.id)
+    money = res[1]
+    money = f"${money}" if money >= 0 else f"-${-money}" 
+    if user == interaction.user:
+        await interaction.response.send_message(f"`Your current Balance is: {money}`")
     else:
-        await interaction.response.send_message(
-            "`You are on cooldown. Wait for 1 minute before you can work again`"
-        )
+        await interaction.response.send_message(f"`{user.name}'s current Balance is: {money}`")
+
+
+@bot.tree.command(name="work", description=STRINGS["descriptions"]["work"])
+async def work(interaction):
+    res = getPlayer(interaction.user.id)
+    if res is None:
+        await interaction.response.send_message(STRINGS["errors"]["notregistered"])
+        return
+
+    if not res[2]:
+        await interaction.response.send_message(STRINGS["errors"]["cooldown"])
+        return
+
+    SQL.execute(f"UPDATE users SET can_work = FALSE WHERE id = {interaction.user.id}")
+    game = views.WorkView(interaction)
+    await game.initiate_game()
+    winnings = res[1] + game.reward
+    SQL.execute(f"UPDATE users SET money = {winnings} WHERE id = {interaction.user.id}")
+    await async_sleep(60)
+    SQL.execute(f"UPDATE users SET can_work = TRUE WHERE id = {interaction.user.id}")
+
 
 @bot.command() # prefix is !!sync
 async def sync(ctx, spec: str = None):
     if ctx.author.id not in mod_ids:
-        await ctx.send("You do not have permission to use this command bruh")
+        await ctx.send(STRINGS["errors"]["mod"])
         return
 
     if spec == "global":
@@ -266,7 +262,9 @@ async def sync(ctx, spec: str = None):
         await bot.tree.sync(guild=ctx.guild)
         await ctx.send(f"Synced instantly to **{ctx.guild.name}** for testing")
 
+
 if __name__ == "__main__":
+    load_dotenv()
     token = os.getenv("TOKEN")
     keep_running()
     bot.run(token)
