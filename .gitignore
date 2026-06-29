@@ -1,4 +1,4 @@
-venv/
+.venv/
 .env
 __pycache__
-people_in_debt.json
+people_in_debt.db
