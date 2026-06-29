@@ -13,45 +13,69 @@ rules: |
   * If neither side picks slave or emperor until turn 5, the game ends and the slave side automatically wins.
   * Minimum bet is 100 debloons
 
+
+descriptions : 
+  nostalgia: Just nostalgia...
+  register: Sign your soul away today!
+  give: Give or take money from someone's account (can only be used by mods)
+  play: The epic showdown.
+  rules: Check out the rules!
+  balance: Check your balance (we all know you broke)
+  work: Work hard and get some debloons to gamble away
+
+
+errors:
+  mod: You do not have permission to use this command bruh
+  cooldown: You are on cooldown. Wait for 1 minute before you can work again
+  reregister: User has already been had by the greedy creators of this bot, sorry lol
+  notregistered: User is not registered. Please run `/register` to register the user
+  selfplay: You can't play against yourself, thats a rigged gamble
+  nanbet: Your bet is not a number
+  smallbet: Your bet must be at least 100 debloons
+  highbet: Bruh you can't bet more than you own, what you want more debt???
+  noconfirmation: One or both players didn't confirm, please make a new game
+  wrongturn: Not your turn brodie
+
+
 theme_song: 
   japanese: |
-    '''月が空にはりついてら 銀紙の星が揺れてら
-    誰もがポケットの中に 孤独を隠し持っている
-    あまりにも突然に 昨日は砕けてゆく
-    それならば今ここで 僕等何かをはじめよう
+    ```月が空にはりついてら　　　銀紙の星が揺れてら
+    誰もがポケットの中に　　　孤独を隠し持っている
+    あまりにも突然に　　　　　昨日は砕けてゆく
+    それならば今ここで　　　　僕等何かをはじめよう
 
-    生きてることが大好きで 意味もなく興奮してる
-    一度に全てを望んで マッハ50で駆け抜ける
-    くだらない世の中だ ションベンかけてやろう
-    打ちのめされる前に 僕が打ちのめしてやろう
+    生きてることが大好きで　　意味もなく興奮してる
+    一度に全てを望んで　　　　マッハ50で駆け抜ける
+    くだらない世の中だ　　　　ションベンかけてやろう
+    打ちのめされる前に　　　　僕が打ちのめしてやろう
 
-    未来は僕等の手の中！！
+    　　　　　　　未来は僕等の手の中！！
 
-    誰かのルールはいらない 誰かのモラルはいらない
-    学校もジュクもいらない 真実を握りしめたい
+    誰かのルールはいらない　　　誰かのモラルはいらない
+    学校もジュクもいらない　　　真実を握りしめたい
 
-    僕等は泣くために 生まれたわけじゃないよ
-    僕等は負けるために 生まれてきたわけじゃないよ
-
-    '''
+    僕等は泣くために　　　　　　生まれたわけじゃないよ
+    僕等は負けるために　　　　　生まれてきたわけじゃないよ```
+    
   romanji: |
-    '''tsuki ga sora ni haritsuitera    gingami no hoshi ga yuretera
-    daremo ga poketto no naka ni    kodoku o kakushi-motteiru
-    amari ni mo totsuzen ni    kinou wa kudakete-yuku
-    sore naraba ima koko de    bokura nanika o hajimeyou
+    ```tsuki ga sora ni haritsuitera    gingami no hoshi ga yuretera
+    daremo ga poketto no naka ni     kodoku o kakushi-motteiru
+    amari ni mo totsuzen ni          kinou wa kudakete-yuku
+    sore naraba ima koko de          bokura nanika o hajimeyou
 
-    ikiteiru koto ga daisuki de    imi mo naku koufun-shiteru
-    ichido ni subete o nozonde    mahha gojuu de kake-nukeru
-    kudaranai yo no naka da    shonben kakete yarou
-    uchi-nomesareru mae ni    boku ga uchi-nomeshite yarou
+    ikiteiru koto ga daisuki de      imi mo naku koufun-shiteru
+    ichido ni subete o nozonde       mahha gojuu de kake-nukeru
+    kudaranai yo no naka da          shonben kakete yarou
+    uchi-nomesareru mae ni           boku ga uchi-nomeshite yarou
 
-    MIRAI WA BOKURA NO TE NO NAKA!!
+                  MIRAI WA BOKURA NO TE NO NAKA!!
 
-    dareka no ruuru wa iranai    dareka no moraru wa iranai
-    gakkou mo juku mo iranai    shinjitsu o nigirishimetai
+    dareka no ruuru wa iranai        dareka no moraru wa iranai
+    gakkou mo juku mo iranai         shinjitsu o nigirishimetai
 
-    bokura wa naku tame ni    umareta wake janai yo
-    bokura wa makeru tame ni    umarete-kita wake janai yo 
-    '''
+    bokura wa naku tame ni           umareta wake janai yo
+    bokura wa makeru tame ni         umarete-kita wake janai yo```
+
+
 mod_ids:
   - 67
