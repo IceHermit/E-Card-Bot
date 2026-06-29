@@ -1,6 +1,15 @@
+# ============================== IMPORT =============================
 import discord, random
 from asyncio import sleep as async_sleep
+import yaml
 
+
+# =============================== INIT ==============================
+with open("utils/strings.yaml", "r", encoding="utf-8") as f:
+    STRINGS = yaml.safe_load(f)
+
+
+# =============================== VIEWS =============================
 class EmperorView(discord.ui.View):
     def __init__(self, player: discord.User, timeout: float = 60.0):
         super().__init__(timeout=timeout)
@@ -8,12 +17,12 @@ class EmperorView(discord.ui.View):
         self.choseCivilian = None
         self.user = None
 
-    # 1. First button: Citizen
+
     @discord.ui.button(label="Citizen", style=discord.ButtonStyle.blurple)
     async def citizen(self, interaction: discord.Interaction, button: discord.Button):
 
         if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your turn brodie", ephemeral=True)
+            await interaction.response.send_message(STRINGS["errors"]["wrongturn"], ephemeral=True)
             return
 
         self.choseCivilian = True
@@ -26,11 +35,12 @@ class EmperorView(discord.ui.View):
         await interaction.response.edit_message(view=self)
         self.stop()
 
+
     @discord.ui.button(label="Emperor", style=discord.ButtonStyle.green)
     async def emperor(self, interaction: discord.Interaction, button: discord.Button):
         
         if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your turn brodie", ephemeral=True)
+            await interaction.response.send_message(STRINGS["errors"]["wrongturn"], ephemeral=True)
             return
 
         self.choseCivilian = False
@@ -55,7 +65,7 @@ class SlaveView(discord.ui.View):
     async def citizen(self, interaction: discord.Interaction, button: discord.Button):
 
         if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your turn brodie", ephemeral=True)
+            await interaction.response.send_message(STRINGS["errors"]["wrongturn"], ephemeral=True)
             return
 
         self.choseCivilian = True
@@ -72,7 +82,7 @@ class SlaveView(discord.ui.View):
     async def emperor(self, interaction: discord.Interaction, button: discord.Button):
         
         if interaction.user.id != self.player.id:
-            await interaction.response.send_message("Not your turn brodie", ephemeral=True)
+            await interaction.response.send_message(STRINGS["errors"]["wrongturn"], ephemeral=True)
             return
 
         self.choseCivilian = False
@@ -87,12 +97,13 @@ class SlaveView(discord.ui.View):
 
 
 class BetConfirmationView(discord.ui.View):
-    def __init__(self, plyr1, plyr2):
+    def __init__(self, player1, player2):
         super().__init__()
-        self.player1 = plyr1
+        self.player1 = player1
         self.confirm1 = False
         self.confirm2 = False
-        self.player2 = plyr2
+        self.player2 = player2
+
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -122,6 +133,7 @@ class BetConfirmationView(discord.ui.View):
             button.style = discord.ButtonStyle.blurple 
             await interaction.response.edit_message(view=self)
 
+
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id not in [self.player1.id, self.player2.id]:
@@ -137,7 +149,6 @@ class BetConfirmationView(discord.ui.View):
         button.label = f"Cancelled by {interaction.user.display_name}"
         await interaction.response.edit_message(view=self)
         self.stop()
-
 
 
 class WorkView(discord.ui.View):
@@ -231,9 +242,8 @@ class ShovelView(discord.ui.View):
             await interaction.response.send_message("Not your job lil bro", ephemeral=True)
             return
 
-        self.workdone += 5
+        self.workdone += 10
         
-        # 3. Check the win condition
         if self.workdone >= 100:
             button.disabled = True
             button.label = "Job Finished... :D"
